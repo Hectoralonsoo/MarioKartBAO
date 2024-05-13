@@ -133,7 +133,7 @@ def calcularTiempoCurva(mCurva, vCurva, peso, traccion, velocidad):
     return mCurva * vCurva
 
 def calcularTiempo(vMax, vInicial, aceleracion, peso):
-    return (int(vMax)-int(vInicial))/((int(aceleracion)-int(peso))*2)
+    return 1
 
 def calcularTiempoVMax(mVMax, velocidad):
     return mVMax*velocidad*2
@@ -226,25 +226,22 @@ with open('bodies_karts.csv', "r") as csvBodies:
 for bodie in bodies:
     print(f"Nombre: {bodie.nombre}, Peso: {bodie.peso}, Aceleracion: {bodie.aceleracion}, Traccion: {bodie.traccion}, Miniturbo: {bodie.miniturbo}, Velocidad en asfalto: {bodie.velTierra}, Velocidad en agua: {bodie.velAgua}, Velocidad en antigravedad: {bodie.velAntiGravedad}, Velocidad en aire: {bodie.velAire}")
 
-def generarCoche():
-    glider = gliders[random.randint(0, 13)]
-    tire = tires[random.randint(0,20)]
-    driver = drivers[random.randint(0, 42)]
-    body = bodies[random.randint(0, 39)]
+def generarCoche(random):
+    glider = random.randint(0, 13)
+    tire = random.randint(0,20)
+    driver = random.randint(0, 42)
+    body = random.randint(0, 39)
 
     return [body, tire, glider, driver]
 def ArrayToCoche(car):
-    return Coche(car[0],car[1],car[2],car[3])
+    print(car)
+    return Coche(bodies[car[0]],tires[car[1]],gliders[car[2]],drivers[car[3]])
 def generarPoblacionInicial(size):
     poblacionInicial=[]
     for i in range(size):
         poblacionInicial.append(generarCoche())
     return poblacionInicial
 
-    poblacionInicial = generarPoblacionInicial(5)
-    tiempo = calcularTiempoVuelta(coche, ovalo)
-    coche.printCoche()
-    print(" Tiempo total: " + str(tiempo) + "\n")
 
 recta1 = Tramo(100, "asfalto", "recta")
 curva1 = Tramo(150, "asfalto", "curva cerrada")
@@ -275,18 +272,21 @@ class DiscreteBounderV2(object):
     """
     def __init__(self, lower_bound,upper_bound):
         self.values = [i for i in range (max(upper_bound))]
+        print(self.values)
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
     def __call__(self, candidate, args):
-        if not isinstance(self.lower_bound, collections.abc.Iterable):
-            self.lower_bound = [min(self.values)] * len(candidate)
-        if not isinstance(self.upper_bound, collections.abc.Iterable):
-            self.upper_bound = [max(self.values)] * len(candidate)
+
         closest = lambda target: min(self.values, key=lambda x: abs(x-target))
         bounded_candidate = candidate
         for i, c in enumerate(bounded_candidate):
-            bounded_candidate[i] = closest(c)
+            if bounded_candidate[i] < self.lower_bound[i]:
+                bounded_candidate[i] = self.lower_bound[i]
+            if bounded_candidate[i] > self.upper_bound[i]:
+                bounded_candidate[i] = self.upper_bound[i]
+
+
         return bounded_candidate
 
 
@@ -300,7 +300,7 @@ class MarioKart(benchmarks.Benchmark):
 
     """
     def __init__(self, circuito):
-        benchmarks.Benchmark.__init__(self, len(circuito))
+        benchmarks.Benchmark.__init__(self, 4)
         self.circuito = circuito
         #max_count = [self.capacity // item[0] for item in self.items]
         self.bounder = DiscreteBounderV2([0,0,0,0],[39,20,13,42])
@@ -308,7 +308,7 @@ class MarioKart(benchmarks.Benchmark):
 
     def generator(self, random, args):
         """Return a candidate solution for an evolutionary algorithm."""
-        return generarCoche()
+        return generarCoche(random)
 
     def evaluator(self, candidates, args):
         """Return the fitness values for the given candidates."""
@@ -332,6 +332,7 @@ ga.selector = ec.selectors.tournament_selection #por defeccto
 ga.variator = [ec.variators.n_point_crossover, ec.variators.random_reset_mutation] #variators para problema discreto
 ga.replacer = ec.replacers.generational_replacement #por defecto
 ga.terminator = ec.terminators.generation_termination
+ga.observer = ec.observers.stats_observer
 final_pop = ga.evolve(generator = problem.generator,
                           evaluator=problem.evaluator,
                           bounder=problem.bounder,
