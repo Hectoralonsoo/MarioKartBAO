@@ -1,3 +1,4 @@
+import collections
 import csv
 
 import random
@@ -63,14 +64,6 @@ class Tramo:
         self.longitud = longitud
         self.terreno = terreno
         self.tipo = tipo
-
-
-
-
-
-
-
-
 
 
 class Pieza:
@@ -156,7 +149,7 @@ with open('gliders.csv', "r") as csvfile:
     next(csv_reader)
     for row in csv_reader:
         nombre = row[0]
-        peso = row[1]
+        peso = int(row[1])
         aceleracion = int(row[2])
         traccion = int(row[3])
         miniturbo = int(row[5])
@@ -177,7 +170,7 @@ with open('tires.csv', "r") as csvTires:
     next(csv_reader)
     for row in csv_reader:
         nombre = row[0]
-        peso = row[1]
+        peso = int(row[1])
         aceleracion = int(row[2])
         traccion = int(row[3])
         miniturbo = int(row[5])
@@ -198,7 +191,7 @@ with open('drivers.csv', "r") as csvDrivers:
     next(csv_reader)
     for row in csv_reader:
         nombre = row[0]
-        peso = row[1]
+        peso = int(row[1])
         aceleracion = int(row[2])
         traccion = int(row[3])
         miniturbo = int(row[5])
@@ -219,7 +212,7 @@ with open('bodies_karts.csv', "r") as csvBodies:
     next(csv_reader)
     for row in csv_reader:
         nombre = row[0]
-        peso = row[1]
+        peso = int(row[1])
         aceleracion = int(row[2])
         traccion = int(row[3])
         miniturbo = int(row[5])
@@ -238,8 +231,10 @@ def generarCoche():
     tire = tires[random.randint(0,20)]
     driver = drivers[random.randint(0, 42)]
     body = bodies[random.randint(0, 39)]
-    return Coche(body, tire, glider, driver)
 
+    return [body, tire, glider, driver]
+def ArrayToCoche(car):
+    return Coche(car[0],car[1],car[2],car[3])
 def generarPoblacionInicial(size):
     poblacionInicial=[]
     for i in range(size):
@@ -256,6 +251,45 @@ curva1 = Tramo(150, "asfalto", "curva cerrada")
 recta2 = Tramo(100, "asfalto", "recta")
 curva2 = Tramo(150, "asfalto", "curva cerrada")
 ovalo = [recta1, curva1, recta2, curva2]
+
+class DiscreteBounderV2(object):
+    """Defines a basic bounding function for numeric lists of discrete values.
+
+    This callable class acts as a function that bounds a
+    numeric list to a set of legitimate values. It does this by
+    resolving a given candidate value to the nearest legitimate
+    value that can be attained. In the event that a candidate value
+    is the same distance to multiple legitimate values, the legitimate
+    value appearing earliest in the list will be used.
+
+    For instance, if ``[1, 4, 8, 16]`` was used as the *values* parameter,
+    then the candidate ``[6, 10, 13, 3, 4, 0, 1, 12, 2]`` would be
+    bounded to ``[4, 8, 16, 4, 4, 1, 1, 8, 1]``.
+
+    Public Attributes:
+
+    - *values* -- the set of attainable values
+    - *lower_bound* -- the smallest attainable value
+    - *upper_bound* -- the largest attainable value
+
+    """
+    def __init__(self, lower_bound,upper_bound):
+        self.values = [i for i in range (max(upper_bound))]
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+
+    def __call__(self, candidate, args):
+        if not isinstance(self.lower_bound, collections.abc.Iterable):
+            self.lower_bound = [min(self.values)] * len(candidate)
+        if not isinstance(self.upper_bound, collections.abc.Iterable):
+            self.upper_bound = [max(self.values)] * len(candidate)
+        closest = lambda target: min(self.values, key=lambda x: abs(x-target))
+        bounded_candidate = candidate
+        for i, c in enumerate(bounded_candidate):
+            bounded_candidate[i] = closest(c)
+        return bounded_candidate
+
+
 class MarioKart(benchmarks.Benchmark):
     """Defines the Mario Kart benchmark problem.
 
@@ -269,7 +303,7 @@ class MarioKart(benchmarks.Benchmark):
         benchmarks.Benchmark.__init__(self, len(circuito))
         self.circuito = circuito
         #max_count = [self.capacity // item[0] for item in self.items]
-        #self.bounder = ec.DiscreteBounder([i for i in range(max(max_count)+1)])
+        self.bounder = DiscreteBounderV2([0,0,0,0],[39,20,13,42])
         self.maximize = False
 
     def generator(self, random, args):
@@ -280,7 +314,7 @@ class MarioKart(benchmarks.Benchmark):
         """Return the fitness values for the given candidates."""
         fitness = []
         for candidate in candidates:
-            tiempo = candidate.calcularTiempoVuelta(self.circuito)
+            tiempo = ArrayToCoche(candidate).calcularTiempoVuelta(self.circuito)
             fitness.append(tiempo)
         return fitness
 
@@ -298,7 +332,7 @@ ga.selector = ec.selectors.tournament_selection #por defeccto
 ga.variator = [ec.variators.n_point_crossover, ec.variators.random_reset_mutation] #variators para problema discreto
 ga.replacer = ec.replacers.generational_replacement #por defecto
 ga.terminator = ec.terminators.generation_termination
-final_pop = ga.evolve(generator=problem.generator,
+final_pop = ga.evolve(generator = problem.generator,
                           evaluator=problem.evaluator,
                           bounder=problem.bounder,
                           maximize=problem.maximize,
