@@ -4,6 +4,10 @@ import random
 import operator
 import math
 import itertools
+import math
+from random import Random
+from time import time
+from inspyred import ec, benchmarks
 
 import numpy
 
@@ -26,30 +30,42 @@ class Coche:
 
     def printCoche(self):
         print("Chasis: " + self.chasis.nombre + " Ruedas: " + self.ruedas.nombre + " Parapente: " + self.parapente.nombre + " Personaje: " + self.personaje.nombre)
+
+    def calcularTiempoVuelta(self, circuito):
+        tiempo = 0
+        vActual = 0
+        i = 0
+        for tramo in circuito:
+            if tramo.tipo == "recta":
+                if tramo.terreno == "tierra":
+                    tiempo += calcularTiempoRecta(int(vActual), self.velTierra, calcularVMax(circuito[i+1], self), tramo.longitud,
+                                                  self.aceleracion, self.peso, self.velTierra, self.traccion)
+                elif tramo.terreno == "agua":
+                    tiempo += calcularTiempoRecta(int(vActual), self.velAgua, calcularVMax(circuito[i+1], self), tramo.longitud,
+                                                  self.aceleracion, self.peso, self.velTierra, self.traccion)
+                elif tramo.terreno == "aire":
+                    tiempo += calcularTiempoRecta(int(vActual), self.velAire, calcularVMax(circuito[i+1], self), tramo.longitud,
+                                                  self.aceleracion, self.peso, self.velTierra, self.traccion)
+                else:
+                    tiempo += calcularTiempoRecta(int(vActual), self.velAntiGravedad, calcularVMax(circuito[i+1], self),
+                                                  tramo.longitud, self.aceleracion, self.peso, self.velTierra,
+                                                  self.traccion)
+
+            else:
+                tiempo += calcularTiempoCurva(tramo.longitud, calcularVMax(tramo, self), self.peso, self.traccion, self.velTierra)
+                vActual = calcularVMax(circuito[i+1], self) + self.miniturbo * 0.9
+                # parametrizar impacto del miniturbo
+
+        return tiempo
 class Tramo:
 
-    def __init__(self, longitud, terreno, tipo, individuo):
+    def __init__(self, longitud, terreno, tipo):
         self.longitud = longitud
         self.terreno = terreno
         self.tipo = tipo
-        self.vMax = self.calcularVMax(individuo)
 
-    def calcularVMax(self, individuo):
-        if self.tipo == "recta":
-            if self.terreno == "tierra":
-                return individuo.velTierra
-            elif self.terreno == "agua":
-                return individuo.velAgua
-            elif self.terreno == "aire":
-                return individuo.velAire
-            else:
-                return individuo.velAntiGravedad
-        elif self.tipo == "curva cerrada":
-            return float(50) + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
-        elif self.tipo == "curva media":
-            return 70.0 + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
-        else:
-            return 90.0 + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
+
+
 
 
 
@@ -84,27 +100,7 @@ class Personaje(Pieza):
 
 #los numeros en azul son parámetros que habrá que cambiar
 
-def calcularTiempoVuelta(coche, circuito):
-    tiempo = 0
-    vActual = 0
-    i=0
-    for tramo in circuito:
-        if tramo.tipo=="recta":
-            if tramo.terreno=="tierra":
-                tiempo += calcularTiempoRecta(int(vActual), coche.velTierra, circuito[i+1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
-            elif tramo.terreno=="agua":
-                tiempo += calcularTiempoRecta(int(vActual), coche.velAgua, circuito[i + 1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
-            elif tramo.terreno=="aire":
-                tiempo += calcularTiempoRecta(int(vActual), coche.velAire, circuito[i + 1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
-            else:
-                tiempo += calcularTiempoRecta(int(vActual), coche.velAntiGravedad, circuito[i + 1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
 
-        else:
-            tiempo += calcularTiempoCurva(tramo.longitud, tramo.vMax, Coche.peso, Coche.traccion, Coche.velTierra)
-            vActual = tramo.vMax + Coche.miniturbo * 0.9
-            # parametrizar impacto del miniturbo
-
-    return tiempo
 
 def calcularTiempoRecta(vInicial, vMax, vCurva, mRecta, aceleracion, peso, velocidad, traccion):
     tiempoRecta = 0
@@ -120,6 +116,23 @@ def calcularTiempoRecta(vInicial, vMax, vCurva, mRecta, aceleracion, peso, veloc
         tiempoRecta = calcularTiempo(vMax, vInicial, aceleracion, peso) + calcularTiempo(vCurva, vMax, aceleracion, peso)
 
     return tiempoRecta
+
+def calcularVMax(tramo, individuo):
+        if tramo.tipo == "recta":
+            if tramo.terreno == "tierra":
+                return individuo.velTierra
+            elif tramo.terreno == "agua":
+                return individuo.velAgua
+            elif tramo.terreno == "aire":
+                return individuo.velAire
+            else:
+                return individuo.velAntiGravedad
+        elif tramo.tipo == "curva cerrada":
+            return float(50) + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
+        elif tramo.tipo == "curva media":
+            return 70.0 + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
+        else:
+            return 90.0 + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
 
 def calcularTiempoCurva(mCurva, vCurva, peso, traccion, velocidad):
     if(velocidad<vCurva):
@@ -233,13 +246,71 @@ def generarPoblacionInicial(size):
         poblacionInicial.append(generarCoche())
     return poblacionInicial
 
-poblacionInicial = generarPoblacionInicial(5)
-for coche in poblacionInicial:
-    recta1 = Tramo(100, "asfalto", "recta", coche)
-    curva1 = Tramo(150, "asfalto", "curva cerrada", coche)
-    recta2 = Tramo(100, "asfalto", "recta", coche)
-    curva2 = Tramo(150, "asfalto", "curva cerrada", coche)
-    ovalo = [recta1, curva1, recta2, curva2]
+    poblacionInicial = generarPoblacionInicial(5)
     tiempo = calcularTiempoVuelta(coche, ovalo)
     coche.printCoche()
     print(" Tiempo total: " + str(tiempo) + "\n")
+
+recta1 = Tramo(100, "asfalto", "recta")
+curva1 = Tramo(150, "asfalto", "curva cerrada")
+recta2 = Tramo(100, "asfalto", "recta")
+curva2 = Tramo(150, "asfalto", "curva cerrada")
+ovalo = [recta1, curva1, recta2, curva2]
+class MarioKart(benchmarks.Benchmark):
+    """Defines the Mario Kart benchmark problem.
+
+    Public Attributes:
+
+    - *circuito* -- el circuito para el que optimizar el coche
+
+
+    """
+    def __init__(self, circuito):
+        benchmarks.Benchmark.__init__(self, len(circuito))
+        self.circuito = circuito
+        #max_count = [self.capacity // item[0] for item in self.items]
+        #self.bounder = ec.DiscreteBounder([i for i in range(max(max_count)+1)])
+        self.maximize = False
+
+    def generator(self, random, args):
+        """Return a candidate solution for an evolutionary algorithm."""
+        return generarCoche()
+
+    def evaluator(self, candidates, args):
+        """Return the fitness values for the given candidates."""
+        fitness = []
+        for candidate in candidates:
+            tiempo = candidate.calcularTiempoVuelta(self.circuito)
+            fitness.append(tiempo)
+        return fitness
+
+size = 50
+
+
+problem = MarioKart(ovalo)
+
+seed = time()  # the current timestamp
+prng = Random()
+prng.seed(seed)
+
+ga = ec.GA(prng)
+ga.selector = ec.selectors.tournament_selection #por defeccto
+ga.variator = [ec.variators.n_point_crossover, ec.variators.random_reset_mutation] #variators para problema discreto
+ga.replacer = ec.replacers.generational_replacement #por defecto
+ga.terminator = ec.terminators.generation_termination
+final_pop = ga.evolve(generator=problem.generator,
+                          evaluator=problem.evaluator,
+                          bounder=problem.bounder,
+                          maximize=problem.maximize,
+                          pop_size=100,
+                          max_generations=50,
+                          num_elites=1,
+                          num_selected=100,
+                          tournament_size=3,
+                          crossover_rate=1,
+                          sbx_distribution_index=10,
+                          mutation_rate=0.05,
+                          gaussian_stdev=0.5)
+
+best = min(ga.population)
+print('Best Solution: {0}: {1}'.format(str(best.candidate), best.fitness))
