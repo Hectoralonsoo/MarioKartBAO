@@ -14,6 +14,35 @@ import numpy
 
 from functools import partial
 
+
+
+
+
+#Fórmulas:
+# Tiempo en Recorrer una distancia: Cambio en el tiempo = Metros Recorridos / Velocidad
+# Tiempo en Acelerar o Decelerar a una velocidad:Cambio en el tiempo = Diferencia de Velocidad / (aceleración * (Parámetro*Peso))
+# Distancia Recorrida para pasar de una velocidad a otra:  VF^2 = VI^2 + 2*a*d
+#   VF = Velocidad Final
+#   VI = Velocidad Inicial
+#   a = Aceleración
+#   d = distancia recorrida
+# Velocidad Máxima en curva:
+#  Curva Abierta = 0.75 de la Velocidad Maxima * (Traccion/10)
+#  Curva Media = 0.5 de la Velocidad Maxima * (Traccion/10)
+#  Curva Cerrada = 0.25 de la Velocidad Maxima * (Traccion/10)
+#  MetrosRectaMaximaVelocidad = MetrosRectaTotal - MetrosAcelerar(Distancia Recorrida para pasar de una velocidad a otra) - MetrosFrenar(Distancia Recorrida para pasar de una velocidad a otra)
+#  TiempoRectaMaximaVelocidad = MetrosRectaMaximaVelocidad / VelocidadMaxima
+#  TiempoAcelerar-TiempoFrenar = Distancia Recorrida para pasar de una velocidad a otra/ (aceleracion-peso)
+#
+
+
+
+
+
+
+
+
+
 class Coche:
     def __init__(self, chasis, ruedas, parapente, personaje):
         self.chasis = chasis
