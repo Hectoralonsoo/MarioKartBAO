@@ -36,7 +36,14 @@ class Tramo:
 
     def calcularVMax(self, individuo):
         if self.tipo == "recta":
-            return individuo.velTierra
+            if self.terreno == "tierra":
+                return individuo.velTierra
+            elif self.terreno == "agua":
+                return individuo.velAgua
+            elif self.terreno == "aire":
+                return individuo.velAire
+            else:
+                return individuo.velAntiGravedad
         elif self.tipo == "curva cerrada":
             return float(50) + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
         elif self.tipo == "curva media":
@@ -77,13 +84,21 @@ class Personaje(Pieza):
 
 #los numeros en azul son parámetros que habrá que cambiar
 
-def calcularTiempoVuelta(Coche, circuito):
+def calcularTiempoVuelta(coche, circuito):
     tiempo = 0
     vActual = 0
     i=0
     for tramo in circuito:
-        if (tramo.tipo=="recta"):
-            tiempo += calcularTiempoRecta(int(vActual), Coche.velTierra, circuito[i+1].vMax, tramo.longitud, Coche.aceleracion, Coche.peso, Coche.velTierra, Coche.traccion)
+        if tramo.tipo=="recta":
+            if tramo.terreno=="tierra":
+                tiempo += calcularTiempoRecta(int(vActual), coche.velTierra, circuito[i+1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
+            elif tramo.terreno=="agua":
+                tiempo += calcularTiempoRecta(int(vActual), coche.velAgua, circuito[i + 1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
+            elif tramo.terreno=="aire":
+                tiempo += calcularTiempoRecta(int(vActual), coche.velAire, circuito[i + 1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
+            else:
+                tiempo += calcularTiempoRecta(int(vActual), coche.velAntiGravedad, circuito[i + 1].vMax, tramo.longitud, coche.aceleracion, coche.peso, coche.velTierra, coche.traccion)
+
         else:
             tiempo += calcularTiempoCurva(tramo.longitud, tramo.vMax, Coche.peso, Coche.traccion, Coche.velTierra)
             vActual = tramo.vMax + Coche.miniturbo * 0.9
