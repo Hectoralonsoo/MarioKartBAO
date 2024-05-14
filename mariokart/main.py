@@ -61,13 +61,16 @@ class Coche:
     def printCoche(self):
         print("Chasis: " + self.chasis.nombre + " Ruedas: " + self.ruedas.nombre + " Parapente: " + self.parapente.nombre + " Personaje: " + self.personaje.nombre)
 
+    def printStats(self):
+        print("Peso: " + str(self.peso) + "\nAceleración: " + str(self.aceleracion) + "\nTracción: " + str(self.aceleracion) + "\nMiniturbo: " + str(self.miniturbo) + "\nVelocidad Tierra: " + str(self.velTierra) +
+              "\nVelocidad Aire: " + str(self.velAire) + "\nVelocidad Agua: " + str(self.velAgua) + "\nVelocidad Antigravedad: " + str(self.velAntiGravedad))
     def calcularTiempoVuelta(self, circuito):
         tiempo = 0
         vActual = 0
         i = 0
         for tramo in circuito:
             if tramo.tipo == "recta":
-                if tramo.terreno == "tierra":
+                if tramo.terreno == "asfalto":
                     tiempo += calcularTiempoRecta(int(vActual), self.velTierra, calcularVMax(circuito[i+1], self), tramo.longitud,
                                                   self.aceleracion, self.peso, self.velTierra, self.traccion)
                 elif tramo.terreno == "agua":
@@ -141,7 +144,7 @@ def calcularTiempoRecta(vInicial, vMax, vCurva, mRecta, aceleracion, peso, veloc
 
 def calcularVMax(tramo, individuo):
         if tramo.tipo == "recta":
-            if tramo.terreno == "tierra":
+            if tramo.terreno == "asfalto":
                 return individuo.velTierra
             elif tramo.terreno == "agua":
                 return individuo.velAgua
@@ -189,8 +192,8 @@ with open('gliders.csv', "r") as csvfile:
         glider = Parapente(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         gliders.append(glider)
 
-for glider in gliders:
-    print(f"Nombre: {glider.nombre}, Peso: {glider.peso}, Aceleracion: {glider.aceleracion}, Traccion: {glider.traccion}, Miniturbo: {glider.miniturbo}, Velocidad en asfalto: {glider.velTierra}, Velocidad  en aire:  {glider.velAire}, Velocidad  en antigravedad:  {glider.velAntiGravedad}, Velocidad en agua: {glider.velAgua}")
+#for glider in gliders:
+    #print(f"Nombre: {glider.nombre}, Peso: {glider.peso}, Aceleracion: {glider.aceleracion}, Traccion: {glider.traccion}, Miniturbo: {glider.miniturbo}, Velocidad en asfalto: {glider.velTierra}, Velocidad  en aire:  {glider.velAire}, Velocidad  en antigravedad:  {glider.velAntiGravedad}, Velocidad en agua: {glider.velAgua}")
 
 tires = []
 
@@ -210,8 +213,8 @@ with open('tires.csv', "r") as csvTires:
         tire = Rueda(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         tires.append(tire)
 
-for tire in tires:
-    print(f"Nombre: {tire.nombre}, Peso: {tire.peso}, Aceleracion: {tire.aceleracion}, Traccion: {tire.traccion}, Miniturbo: {tire.miniturbo}, Velocidad en asfalto: {tire.velTierra}, Velocidad en agua: {tire.velAgua}, Velocidad en antigravedad: {tire.velAntiGravedad}, Velocidad en aire: {tire.velAire}")
+#for tire in tires:
+    #print(f"Nombre: {tire.nombre}, Peso: {tire.peso}, Aceleracion: {tire.aceleracion}, Traccion: {tire.traccion}, Miniturbo: {tire.miniturbo}, Velocidad en asfalto: {tire.velTierra}, Velocidad en agua: {tire.velAgua}, Velocidad en antigravedad: {tire.velAntiGravedad}, Velocidad en aire: {tire.velAire}")
 
 drivers = []
 
@@ -231,8 +234,8 @@ with open('drivers.csv', "r") as csvDrivers:
         driver = Personaje(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         drivers.append(driver)
 
-for driver in drivers:
-    print(f"Nombre: {driver.nombre}, Peso: {driver.peso}, Aceleracion: {driver.aceleracion}, Traccion: {driver.traccion}, Miniturbo: {driver.miniturbo}, Velocidad en asfalto: {driver.velTierra}, Velocidad en agua: {driver.velAgua}, Velocidad en antigravedad: {driver.velAntiGravedad}, Velocidad en aire: {driver.velAire}")
+#for driver in drivers:
+    #print(f"Nombre: {driver.nombre}, Peso: {driver.peso}, Aceleracion: {driver.aceleracion}, Traccion: {driver.traccion}, Miniturbo: {driver.miniturbo}, Velocidad en asfalto: {driver.velTierra}, Velocidad en agua: {driver.velAgua}, Velocidad en antigravedad: {driver.velAntiGravedad}, Velocidad en aire: {driver.velAire}")
 
 bodies = []
 
@@ -252,12 +255,12 @@ with open('bodies_karts.csv', "r") as csvBodies:
         bodie = Chasis(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         bodies.append(bodie)
 
-for bodie in bodies:
-    print(f"Nombre: {bodie.nombre}, Peso: {bodie.peso}, Aceleracion: {bodie.aceleracion}, Traccion: {bodie.traccion}, Miniturbo: {bodie.miniturbo}, Velocidad en asfalto: {bodie.velTierra}, Velocidad en agua: {bodie.velAgua}, Velocidad en antigravedad: {bodie.velAntiGravedad}, Velocidad en aire: {bodie.velAire}")
+#for bodie in bodies:
+    #print(f"Nombre: {bodie.nombre}, Peso: {bodie.peso}, Aceleracion: {bodie.aceleracion}, Traccion: {bodie.traccion}, Miniturbo: {bodie.miniturbo}, Velocidad en asfalto: {bodie.velTierra}, Velocidad en agua: {bodie.velAgua}, Velocidad en antigravedad: {bodie.velAntiGravedad}, Velocidad en aire: {bodie.velAire}")
 
 def generarCoche(random):
     glider = random.randint(0, 13)
-    tire = random.randint(0,20)
+    tire = random.randint(0, 20)
     driver = random.randint(0, 42)
     body = random.randint(0, 39)
 
@@ -272,10 +275,10 @@ def generarPoblacionInicial(size):
     return poblacionInicial
 
 
-recta1 = Tramo(100, "asfalto", "recta")
-curva1 = Tramo(150, "asfalto", "curva cerrada")
-recta2 = Tramo(100, "asfalto", "recta")
-curva2 = Tramo(150, "asfalto", "curva cerrada")
+recta1 = Tramo(100, "agua", "recta")
+curva1 = Tramo(150, "agua", "curva cerrada")
+recta2 = Tramo(100, "agua", "recta")
+curva2 = Tramo(150, "agua", "curva cerrada")
 ovalo = [recta1, curva1, recta2, curva2]
 
 class DiscreteBounderV2(object):
@@ -306,10 +309,9 @@ class DiscreteBounderV2(object):
         self.upper_bound = upper_bound
 
     def __call__(self, candidate, args):
-
-        closest = lambda target: min(self.values, key=lambda x: abs(x-target))
+        print("Bounder called with candidate:", candidate)
         bounded_candidate = candidate
-        for i, c in enumerate(bounded_candidate):
+        for i in range(len(bounded_candidate)):
             if bounded_candidate[i] < self.lower_bound[i]:
                 bounded_candidate[i] = self.lower_bound[i]
             if bounded_candidate[i] > self.upper_bound[i]:
@@ -318,7 +320,14 @@ class DiscreteBounderV2(object):
 
         return bounded_candidate
 
-
+def boundCandidate(candidate):
+    bound = [39, 20, 13, 42]
+    for i in range(len(candidate)):
+        if candidate[i] < 0:
+            candidate[i] = 0
+        if candidate[i] > bound[i]:
+            candidate[i] = bound[i]
+    return candidate
 class MarioKart(benchmarks.Benchmark):
     """Defines the Mario Kart benchmark problem.
 
@@ -332,7 +341,7 @@ class MarioKart(benchmarks.Benchmark):
         benchmarks.Benchmark.__init__(self, 4)
         self.circuito = circuito
         #max_count = [self.capacity // item[0] for item in self.items]
-        self.bounder = DiscreteBounderV2([0,0,0,0],[39,20,13,42])
+        self.bounder = DiscreteBounderV2([0, 0, 0, 0], [39, 20, 13, 42])
         self.maximize = False
 
     def generator(self, random, args):
@@ -343,6 +352,7 @@ class MarioKart(benchmarks.Benchmark):
         """Return the fitness values for the given candidates."""
         fitness = []
         for candidate in candidates:
+            candidate = boundCandidate(candidate)
             tiempo = ArrayToCoche(candidate).calcularTiempoVuelta(self.circuito)
             fitness.append(tiempo)
         return fitness
@@ -376,5 +386,8 @@ final_pop = ga.evolve(generator = problem.generator,
                           mutation_rate=0.05,
                           gaussian_stdev=0.5)
 
-best = min(ga.population)
+best = max(ga.population)
 print('Best Solution: {0}: {1}'.format(str(best.candidate), best.fitness))
+mejorCoche = ArrayToCoche(best.candidate)
+mejorCoche.printCoche()
+mejorCoche.printStats()
