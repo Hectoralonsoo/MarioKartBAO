@@ -10,7 +10,9 @@ from random import Random
 from time import time
 from inspyred import ec, benchmarks
 
-import numpy
+import numpy as np
+from copy import deepcopy
+from typing import List, Dict
 
 from functools import partial
 
@@ -224,7 +226,7 @@ def calcularVelocidadCurva(tramo, coche):
         else:
             velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 1.25 - 5
 
-    if (velocidad == 0):
+    if velocidad <= 0:
         return 1
     else:
         return velocidad
@@ -418,7 +420,7 @@ class DiscreteBounderV2(object):
     - *upper_bound* -- the largest attainable value
 
     """
-    def __init__(self, lower_bound,upper_bound):
+    def __init__(self, lower_bound, upper_bound):
         self.values = [i for i in range (max(upper_bound))]
         print(self.values)
         self.lower_bound = lower_bound
@@ -475,7 +477,7 @@ class MarioKart(benchmarks.Benchmark):
 
 size = 50
 
-
+'''
 problem = MarioKart(circuito1)
 
 seed = time()  # the current timestamp
@@ -507,3 +509,126 @@ print('Best Solution: {0}: {1}'.format(str(best.candidate), best.fitness))
 mejorCoche = ArrayToCoche(best.candidate)
 mejorCoche.printCoche()
 mejorCoche.printStats()
+'''
+
+
+
+class ACOMarioKart:
+
+    def __init__(self, circuito = circuito1, n_ants: int = 10, alpha: float = 1, beta: float = 5, rho: float = 0.8):
+
+        self.circuito = circuito
+        self.n_ants = n_ants
+        self.alpha = alpha
+        self.beta = beta
+        self.rho = rho
+
+        self.pheromone = None
+        self.best_solution = None
+        self.best_fitness = None
+
+        self.pheromone_history = []
+        self.trails_history = []
+        self.best_fitness_history = []
+
+    def optimize(self, max_evaluations: int = 1000):
+        self._initialize()
+
+        n_evaluations = 0
+        iter_fitness = 1e-10
+        while n_evaluations < max_evaluations:
+            trails = []
+            for _ in range(self.n_ants):
+                solution = self._construct_solution()
+                fitness = self._evaluate(solution)
+                n_evaluations += 1
+                trails.append((solution, fitness))
+
+                if fitness > self.best_fitness:
+                    self.best_solution = solution
+                    self.best_fitness = fitness
+
+            self._update_pheromone(trails, iter_fitness)
+            iter_fitness = self.best_fitness
+
+            self.trails_history.append(deepcopy(trails))
+            self.best_fitness_history.append(self.best_fitness)
+
+        return self.best_solution
+
+    def _initialize(self):
+        self.pheromone = []
+        self.pheromone.append(np.ones(len(bodies)))
+        self.pheromone.append(np.ones(len(tires)))
+        self.pheromone.append(np.ones(len(gliders)))
+        self.pheromone.append(np.ones(len(drivers)))
+        self.best_solution = None
+        self.best_fitness = float('inf')
+
+        self.pheromone_history = []
+        self.trails_history = []
+        self.best_fitness_history = []
+
+    def _evaluate(self, solution: List[int]) -> float:
+        solucion = ArrayToCoche(solution)
+        return calcularTiempoVuelta(solucion, self.circuito)
+
+    def _construct_solution(self) -> List[int]:
+        solution = [-1, -1, -1, -1]
+        i=0
+        while i<4:
+            while True:
+                candidates = self._get_candidates(i)
+
+                if len(candidates) == 0:
+                    break
+                elif len(candidates) == 1:
+                    solution[i] = candidates[0]
+                    break
+                p = []
+                p.append(self.pheromone[i])
+                pheromones = p[candidates]**self.alpha
+                heuristic = self._heuristic(candidates)**self.beta
+
+                total = np.sum(pheromones * heuristic)
+                probabilities = (pheromones * heuristic) / total
+
+
+                solution[i] = np.random.choice(candidates, p=probabilities)
+                i=i+1
+
+
+        return solution
+
+    def _heuristic(self, candidates: List[int]) -> np.ndarray:
+        return np.ones(len(candidates))
+
+    def _get_candidates(self, nPieza : int) -> np.ndarray:
+
+
+        candidates = []
+        if nPieza == 0:
+            candidates = [i for i in range(len(bodies))]
+        elif nPieza == 1:
+            candidates = [i for i in range(len(tires))]
+        elif nPieza == 2:
+            candidates = [i for i in range(len(gliders))]
+        else: candidates = [i for i in range(len(drivers))]
+        return np.array(candidates)
+
+    def _update_pheromone(self, trails: List[List[int]], best_fitness):
+        self.pheromone_history.append(self.pheromone.copy())
+
+        evaporation = 1 - self.rho
+        self.pheromone *= evaporation
+        for solution, fitness in trails:
+            delta_fitness = 1.0/(1.0 + (best_fitness - fitness) / best_fitness)
+            mask = np.argwhere(solution == 1).flatten()
+            self.pheromone[mask] += delta_fitness
+
+aco = ACOMarioKart(circuito1)
+best_solution = aco.optimize()
+best_coche = ArrayToCoche(best_solution)
+best_coche.printCoche()
+best_coche.printStats()
+
