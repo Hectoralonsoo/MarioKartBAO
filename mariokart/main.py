@@ -58,27 +58,31 @@ class Coche:
         self.velAntiGravedad = chasis.velAntiGravedad + ruedas.velAntiGravedad + parapente.velAntiGravedad + personaje.velAntiGravedad
         self.velAire = chasis.velAire + ruedas.velAire + parapente.velAire + personaje.velAire
 
-
     def printCoche(self):
-        print("Chasis: " + self.chasis.nombre + " Ruedas: " + self.ruedas.nombre + " Parapente: " + self.parapente.nombre + " Personaje: " + self.personaje.nombre + "Aceleracion: " + str(self.aceleracion) +"Traccion: " + str(self.traccion) + "Peso: " + str(self.peso))
+        print("Chasis: " + self.chasis.nombre + " Ruedas: " + self.ruedas.nombre + " Parapente: " + self.parapente.nombre + " Personaje: " + self.personaje.nombre)
 
+    def printStats(self):
+        print("Peso: " + str(self.peso) + "\nAceleración: " + str(self.aceleracion) + "\nTracción: " + str(self.aceleracion) + "\nMiniturbo: " + str(self.miniturbo) + "\nVelocidad Tierra: " + str(self.velTierra) +
+              "\nVelocidad Aire: " + str(self.velAire) + "\nVelocidad Agua: " + str(self.velAgua) + "\nVelocidad Antigravedad: " + str(self.velAntiGravedad))
+
+    '''
     def calcularTiempoVuelta(self, circuito):
         tiempo = 0
         vActual = 0
         i = 0
         for tramo in circuito:
             if tramo.tipo == "recta":
-                if tramo.terreno == "tierra":
-                    tiempo += self.calcularTiempoRecta(int(vActual), self.velTierra, calcularVMax(circuito[i+1], self), tramo.longitud,
+                if tramo.terreno == "asfalto":
+                    tiempo += calcularTiempoRecta(int(vActual), self.velTierra, calcularVMax(circuito[i+1], self), tramo.longitud,
                                                   self.aceleracion, self.peso, self.velTierra, self.traccion)
                 elif tramo.terreno == "agua":
-                    tiempo += self.calcularTiempoRecta(int(vActual), self.velAgua, calcularVMax(circuito[i+1], self), tramo.longitud,
+                    tiempo += calcularTiempoRecta(int(vActual), self.velAgua, calcularVMax(circuito[i+1], self), tramo.longitud,
                                                   self.aceleracion, self.peso, self.velTierra, self.traccion)
                 elif tramo.terreno == "aire":
-                    tiempo += self.calcularTiempoRecta(int(vActual), self.velAire, calcularVMax(circuito[i+1], self), tramo.longitud,
+                    tiempo += calcularTiempoRecta(int(vActual), self.velAire, calcularVMax(circuito[i+1], self), tramo.longitud,
                                                   self.aceleracion, self.peso, self.velTierra, self.traccion)
                 else:
-                    tiempo += self.calcularTiempoRecta(int(vActual), self.velAntiGravedad, calcularVMax(circuito[i+1], self),
+                    tiempo += calcularTiempoRecta(int(vActual), self.velAntiGravedad, calcularVMax(circuito[i+1], self),
                                                   tramo.longitud, self.aceleracion, self.peso, self.velTierra,
                                                   self.traccion)
 
@@ -87,26 +91,8 @@ class Coche:
                 vActual = calcularVMax(circuito[i+1], self) + self.miniturbo * 0.9
                 # parametrizar impacto del miniturbo
 
-             return tiempo
-
-     def calcularTiempoRecta(vInicial, vMax, vCurva, mRecta, aceleracion, peso, velocidad, traccion):
-            tiempoRecta = 0
-            vCurva = vCurva + float(peso) * 0.25 + float(traccion) * 0.75
-            mFrenar = distanciaRecorridaAcelerandoFrenando(vInicial,vMax, aceleracion, peso)
-            mAcelerar = distanciaRecorridaAcelerandoFrenando(vInicial, vMax, aceleracion, peso)
-            mVMax = mRecta - mFrenar
-            mAcelerar = calcularMetros(vMax, vInicial, aceleracion, peso)
-            if (mAcelerar < mVMax):
-                mVMax = mRecta - mAcelerar
-                tiempoRecta = calcularTiempo(vMax, vInicial, aceleracion, peso) + calcularTiempoVMax(mVMax,
-                                                                                                     velocidad) + calcularTiempo(
-                    vCurva, vMax, aceleracion, peso)
-            else:
-                # en este caso no se alcanza vMax, necesitamos otro método para calcular tiempo acelerando
-                tiempoRecta = calcularTiempo(vMax, vInicial, aceleracion, peso) + calcularTiempo(vCurva, vMax,
-                                                                                                 aceleracion, peso)
-
-            return tiempoRecta
+        return tiempo
+        '''
 class Tramo:
 
     def __init__(self, longitud, terreno, tipo):
@@ -147,32 +133,123 @@ class Personaje(Pieza):
 
 
 
-'''
-def calcularTiempoRecta(circuito):
-    tiempoRecta = 0
-    velocidadInicial = 0
-    tiempoAcelerar = 0
-    tiempoFrenar = 0
-    if(not esInicioCircuito(circuito)):
-        velocidadInicial = velocidadMaximaCurva(tramo) + miniturbo
-    tiempoAcelerar = (velocidadFinal - velocidadInicial)/(aceleracion)
-    tiempoFrenar = (velocidadInicial - velocidadFinal)/(aceleracion)
-    tiempoRecta = distanciaRecorridaAcelerandoFrenando()
-'''
-def distanciaRecorridaAcelerandoFrenando(velocidadInicial, velocidadFinal, aceleracion, peso):
-    if velocidadInicial > velocidadFinal:
-        distancia = ((velocidadInicial**2 - velocidadFinal**2 )*peso)/(2*aceleracion)
-    else:
-        distancia = ((velocidadFinal**2 - velocidadInicial**2)*peso)/(2*aceleracion)
+def calcularTiempoVuelta(coche, circuito):
+    velocidadActual = 0
+    tiempo = 0
+    for tramo in circuito:
+        if tramo != circuito[-1]:
+            if tramo == "recta":
+                tiempo += calcularTiempoRecta(tramo, velocidadActual, calcularVelocidadFinalRecta(coche, tramo), coche.aceleracion)
+                velocidadActual = calcularVelocidadFinalRecta(coche, tramo)
+            else:
+                tiempo += calcularTiempoCurva(tramo, coche)
+                velocidadActual = calcularVelocidadFinalCurva(coche, tramo)
+        else:
+            if tramo == "recta":
+                tiempo += calcularTiempoRecta(tramo, velocidadActual, calcularVelocidadFinalRecta(coche, tramo), coche.aceleracion)
+            else:
+                tiempo += calcularTiempoCurva(tramo, coche)
+    return tiempo
 
-    return distancia
+
+def calcularTiempoAcelerando(velocidadInicial, velocidadFinal, aceleracion):
+    velocidadMedia = (velocidadInicial + velocidadFinal)/2
+    return calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, aceleracion) /velocidadMedia
+
+def calcularTiempoFrenando(velocidadInicial, velocidadFinal, aceleracion):
+    velocidadMedia = (velocidadInicial + velocidadFinal)/2
+    return calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, aceleracion) /velocidadMedia
+
+
+
+def calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, aceleracion):
+    return ((velocidadFinal**2 - velocidadInicial**2) / (2*aceleracion))
+
+def calcularDistanciaFrenando(velocidadInicial, velocidadFinal, aceleracion):
+    return((velocidadInicial**2-velocidadFinal**2) / (2*aceleracion))
+
+def calcularVelocidadMaximaRecta(tramo, coche):
+    if tramo.terreno == "asfalto":
+        velocidad = coche.velTierra
+    elif tramo.terreno == "agua":
+        velocidad = coche.velAgua
+    elif tramo.terreno == "aire":
+        velocidad = coche.velAire
+    else:
+        velocidad = coche.velAntiGravedad
+    return velocidad
+def calcularVelocidadFinalRecta(coche, tramo):
+    return calcularVelocidadCurva(tramo, coche)
+def calcularVelocidadFinalCurva(coche, tramo):
+    return coche.miniturbo + calcularVelocidadCurva(tramo, coche)
+def tiempoDistanciaVelocidadConstante(distancia, velocidad):
+    return distancia/velocidad
+def calcularTiempoRecta(tramo, velocidadInicial, velocidadFinal, aceleracion):
+    return calcularTiempoAcelerando(velocidadInicial, velocidadFinal, aceleracion) + tiempoDistanciaVelocidadConstante(calcularMetrosVelocidadMaximaRecta(tramo)) + calcularTiempoFrenando(velocidadInicial,velocidadFinal,aceleracion)
+def calcularMetrosVelocidadMaximaRecta(tramo, velocidadInicial, velocidadFinal, aceleracion):
+    if tramo.longitud <= ((calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, aceleracion) + calcularDistanciaFrenando(velocidadInicial, velocidadFinal, aceleracion))):
+        return 0
+    else:
+        return tramo.longitud - calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, aceleracion) - calcularDistanciaFrenando(velocidadInicial, velocidadFinal, aceleracion)
+
+
+def calcularVelocidadCurva(tramo, coche):
+    if tramo.terreno == "asfalto":
+        if tramo.tipo == "curva cerrada":
+            velocidad = coche.velTierra - coche.peso + coche.traccion * 2 - 10
+        elif tramo.tipo == "curva media":
+            velocidad = coche.velTierra - coche.peso + coche.traccion * 1.5 - 7
+        else:
+            velocidad = coche.velTierra - coche.peso + coche.traccion * 1.25 - 5
+
+    elif tramo.terreno == "agua":
+        if tramo.tipo == "curva cerrada":
+            velocidad = coche.velAgua - coche.peso + coche.traccion * 2 - 10
+        elif tramo.tipo == "curva media":
+            velocidad = coche.velAgua - coche.peso + coche.traccion * 1.5 - 7
+        else:
+            velocidad = coche.velAgua - coche.peso + coche.traccion * 1.25 - 5
+    elif tramo.terreno == "aire":
+        if tramo.tipo == "curva cerrada":
+            velocidad = coche.velAire - coche.peso + coche.traccion * 2 - 10
+        elif tramo.tipo == "curva media":
+            velocidad = coche.velAire - coche.peso + coche.traccion * 1.5 - 7
+        else:
+            velocidad = coche.velAire - coche.peso + coche.traccion * 1.25 - 5
+    else:
+        if tramo.tipo == "curva cerrada":
+            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 2 - 10
+        elif tramo.tipo == "curva media":
+            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 1.5 - 7
+        else:
+            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 1.25 - 5
+
+    if (velocidad == 0):
+        return 1
+    else:
+        return velocidad
+def calcularTiempoCurva(tramo, coche):
+    return (tramo.longitud / calcularVelocidadCurva(tramo, coche))
+
 '''
-def esInicioCircuito(circuito):
-    return True
-'''
+def calcularTiempoRecta(vInicial, vMax, vCurva, mRecta, aceleracion, peso, velocidad, traccion):
+    tiempoRecta = 0
+    vCurva = vCurva+float(peso)*0.25+float(traccion)*0.75
+    mFrenar = calcularMetros(vCurva, vMax, -aceleracion, peso)
+    mVMax = mRecta-mFrenar
+    mAcelerar = calcularMetros(vMax, vInicial, aceleracion, peso)
+    if(mAcelerar<mVMax):
+        mVMax = mRecta-mAcelerar
+        tiempoRecta = calcularTiempo(vMax, vInicial, aceleracion, peso) + calcularTiempoVMax(mVMax, velocidad) + calcularTiempo(vCurva, vMax, aceleracion, peso)
+    else:
+        #en este caso no se alcanza vMax, necesitamos otro método para calcular tiempo acelerando
+        tiempoRecta = calcularTiempo(vMax, vInicial, aceleracion, peso) + calcularTiempo(vCurva, vMax, aceleracion, peso)
+
+    return tiempoRecta
+
 def calcularVMax(tramo, individuo):
         if tramo.tipo == "recta":
-            if tramo.terreno == "tierra":
+            if tramo.terreno == "asfalto":
                 return individuo.velTierra
             elif tramo.terreno == "agua":
                 return individuo.velAgua
@@ -201,6 +278,7 @@ def calcularTiempoVMax(mVMax, velocidad):
 def calcularMetros(vFinal, vInicial, aceleracion, peso):
     tiempo =calcularTiempo(vFinal, vInicial, aceleracion, peso)
     return vInicial*tiempo+0.5*aceleracion*10*tiempo*tiempo
+'''
 
 gliders = []
 
@@ -220,8 +298,8 @@ with open('gliders.csv', "r") as csvfile:
         glider = Parapente(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         gliders.append(glider)
 
-for glider in gliders:
-    print(f"Nombre: {glider.nombre}, Peso: {glider.peso}, Aceleracion: {glider.aceleracion}, Traccion: {glider.traccion}, Miniturbo: {glider.miniturbo}, Velocidad en asfalto: {glider.velTierra}, Velocidad  en aire:  {glider.velAire}, Velocidad  en antigravedad:  {glider.velAntiGravedad}, Velocidad en agua: {glider.velAgua}")
+#for glider in gliders:
+    #print(f"Nombre: {glider.nombre}, Peso: {glider.peso}, Aceleracion: {glider.aceleracion}, Traccion: {glider.traccion}, Miniturbo: {glider.miniturbo}, Velocidad en asfalto: {glider.velTierra}, Velocidad  en aire:  {glider.velAire}, Velocidad  en antigravedad:  {glider.velAntiGravedad}, Velocidad en agua: {glider.velAgua}")
 
 tires = []
 
@@ -241,8 +319,8 @@ with open('tires.csv', "r") as csvTires:
         tire = Rueda(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         tires.append(tire)
 
-for tire in tires:
-    print(f"Nombre: {tire.nombre}, Peso: {tire.peso}, Aceleracion: {tire.aceleracion}, Traccion: {tire.traccion}, Miniturbo: {tire.miniturbo}, Velocidad en asfalto: {tire.velTierra}, Velocidad en agua: {tire.velAgua}, Velocidad en antigravedad: {tire.velAntiGravedad}, Velocidad en aire: {tire.velAire}")
+#for tire in tires:
+    #print(f"Nombre: {tire.nombre}, Peso: {tire.peso}, Aceleracion: {tire.aceleracion}, Traccion: {tire.traccion}, Miniturbo: {tire.miniturbo}, Velocidad en asfalto: {tire.velTierra}, Velocidad en agua: {tire.velAgua}, Velocidad en antigravedad: {tire.velAntiGravedad}, Velocidad en aire: {tire.velAire}")
 
 drivers = []
 
@@ -262,8 +340,8 @@ with open('drivers.csv', "r") as csvDrivers:
         driver = Personaje(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         drivers.append(driver)
 
-for driver in drivers:
-    print(f"Nombre: {driver.nombre}, Peso: {driver.peso}, Aceleracion: {driver.aceleracion}, Traccion: {driver.traccion}, Miniturbo: {driver.miniturbo}, Velocidad en asfalto: {driver.velTierra}, Velocidad en agua: {driver.velAgua}, Velocidad en antigravedad: {driver.velAntiGravedad}, Velocidad en aire: {driver.velAire}")
+#for driver in drivers:
+    #print(f"Nombre: {driver.nombre}, Peso: {driver.peso}, Aceleracion: {driver.aceleracion}, Traccion: {driver.traccion}, Miniturbo: {driver.miniturbo}, Velocidad en asfalto: {driver.velTierra}, Velocidad en agua: {driver.velAgua}, Velocidad en antigravedad: {driver.velAntiGravedad}, Velocidad en aire: {driver.velAire}")
 
 bodies = []
 
@@ -283,12 +361,12 @@ with open('bodies_karts.csv', "r") as csvBodies:
         bodie = Chasis(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         bodies.append(bodie)
 
-for bodie in bodies:
-    print(f"Nombre: {bodie.nombre}, Peso: {bodie.peso}, Aceleracion: {bodie.aceleracion}, Traccion: {bodie.traccion}, Miniturbo: {bodie.miniturbo}, Velocidad en asfalto: {bodie.velTierra}, Velocidad en agua: {bodie.velAgua}, Velocidad en antigravedad: {bodie.velAntiGravedad}, Velocidad en aire: {bodie.velAire}")
+#for bodie in bodies:
+    #print(f"Nombre: {bodie.nombre}, Peso: {bodie.peso}, Aceleracion: {bodie.aceleracion}, Traccion: {bodie.traccion}, Miniturbo: {bodie.miniturbo}, Velocidad en asfalto: {bodie.velTierra}, Velocidad en agua: {bodie.velAgua}, Velocidad en antigravedad: {bodie.velAntiGravedad}, Velocidad en aire: {bodie.velAire}")
 
 def generarCoche(random):
     glider = random.randint(0, 13)
-    tire = random.randint(0,20)
+    tire = random.randint(0, 20)
     driver = random.randint(0, 42)
     body = random.randint(0, 39)
 
@@ -296,20 +374,28 @@ def generarCoche(random):
 def ArrayToCoche(car):
     print(car)
     return Coche(bodies[car[0]],tires[car[1]],gliders[car[2]],drivers[car[3]])
-
-'''
 def generarPoblacionInicial(size):
     poblacionInicial=[]
     for i in range(size):
         poblacionInicial.append(generarCoche())
     return poblacionInicial
-'''
 
-recta1 = Tramo(100, "asfalto", "recta")
-curva1 = Tramo(150, "asfalto", "curva cerrada")
-recta2 = Tramo(100, "asfalto", "recta")
-curva2 = Tramo(150, "asfalto", "curva cerrada")
+'''
+recta1 = Tramo(100, "agua", "recta")
+curva1 = Tramo(150, "agua", "curva cerrada")
+recta2 = Tramo(100, "agua", "recta")
+curva2 = Tramo(150, "agua", "curva cerrada")
 ovalo = [recta1, curva1, recta2, curva2]
+'''
+recta1 = Tramo(100, "antigravedad", "recta")
+curva1 = Tramo(150, "antigravedad", "curva cerrada")
+recta2 = Tramo(100, "antigravedad", "recta")
+curva2 = Tramo(100, "antigravedad", "curva cerrada")
+recta3 = Tramo(2000, "antigravedad", "recta")
+curva3 = Tramo(100, "antigravedad", "curva media")
+recta4 = Tramo(300, "antigravedad", "recta")
+curva4 = Tramo(200, "antigravedad", "curva abierta")
+circuito1 = [recta1, curva1, recta2, curva2, recta3, curva3, recta4, curva4]
 
 class DiscreteBounderV2(object):
     """Defines a basic bounding function for numeric lists of discrete values.
@@ -339,10 +425,9 @@ class DiscreteBounderV2(object):
         self.upper_bound = upper_bound
 
     def __call__(self, candidate, args):
-
-        closest = lambda target: min(self.values, key=lambda x: abs(x-target))
+        print("Bounder called with candidate:", candidate)
         bounded_candidate = candidate
-        for i, c in enumerate(bounded_candidate):
+        for i in range(len(bounded_candidate)):
             if bounded_candidate[i] < self.lower_bound[i]:
                 bounded_candidate[i] = self.lower_bound[i]
             if bounded_candidate[i] > self.upper_bound[i]:
@@ -351,7 +436,14 @@ class DiscreteBounderV2(object):
 
         return bounded_candidate
 
-
+def boundCandidate(candidate):
+    bound = [39, 20, 13, 42]
+    for i in range(len(candidate)):
+        if candidate[i] < 0:
+            candidate[i] = 0
+        if candidate[i] > bound[i]:
+            candidate[i] = bound[i]
+    return candidate
 class MarioKart(benchmarks.Benchmark):
     """Defines the Mario Kart benchmark problem.
 
@@ -365,7 +457,7 @@ class MarioKart(benchmarks.Benchmark):
         benchmarks.Benchmark.__init__(self, 4)
         self.circuito = circuito
         #max_count = [self.capacity // item[0] for item in self.items]
-        self.bounder = DiscreteBounderV2([0,0,0,0],[39,20,13,42])
+        self.bounder = DiscreteBounderV2([0, 0, 0, 0], [39, 20, 13, 42])
         self.maximize = False
 
     def generator(self, random, args):
@@ -376,15 +468,15 @@ class MarioKart(benchmarks.Benchmark):
         """Return the fitness values for the given candidates."""
         fitness = []
         for candidate in candidates:
-            ArrayToCoche(candidate).printCoche()
-            tiempo = ArrayToCoche(candidate).calcularTiempoVuelta(self.circuito)
+            candidate = boundCandidate(candidate)
+            tiempo = calcularTiempoVuelta(ArrayToCoche(candidate), self.circuito)
             fitness.append(tiempo)
         return fitness
 
 size = 50
 
 
-problem = MarioKart(ovalo)
+problem = MarioKart(circuito1)
 
 seed = time()  # the current timestamp
 prng = Random()
@@ -410,5 +502,8 @@ final_pop = ga.evolve(generator = problem.generator,
                           mutation_rate=0.05,
                           gaussian_stdev=0.5)
 
-best = min(ga.population)
+best = max(ga.population)
 print('Best Solution: {0}: {1}'.format(str(best.candidate), best.fitness))
+mejorCoche = ArrayToCoche(best.candidate)
+mejorCoche.printCoche()
+mejorCoche.printStats()
