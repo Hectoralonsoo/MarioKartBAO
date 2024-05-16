@@ -143,7 +143,7 @@ def calcularTiempoAcelerando(velocidadInicial, velocidadFinal, coche):
     if velocidadMedia == 0:
         return 1
     else:
-        return calcularDistanciaFrenando(velocidadInicial, velocidadFinal, coche) / velocidadMedia
+        return calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, coche) / velocidadMedia
 
 def calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, coche):
     return coche.peso + ((velocidadFinal**2 - velocidadInicial**2) / 2 * coche.aceleracion)
@@ -155,7 +155,7 @@ def calcularTiempoFrenando(velocidadInicial, velocidadFinal, coche):
     return calcularDistanciaFrenando(velocidadInicial, velocidadFinal, coche) / velocidadMedia
 
 def calcularDistanciaFrenando(velocidadInicial, velocidadFinal, coche):
-    return coche.peso + ((velocidadInicial**2 - velocidadFinal**2) / 2 * coche.aceleracion)
+    return coche.peso + ((velocidadFinal**2 - velocidadInicial**2) / 2 * coche.aceleracion)
 
 def calcularTiempoVelocidadMaximaRecta(tramoActual, tramoSiguiente, coche, velocidadMaxima):
     distanciaVelocidadMaxima = calcularDistanciaVelocidadMaximaRecta(tramoActual,tramoSiguiente, coche, velocidadMaxima)
