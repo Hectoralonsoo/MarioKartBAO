@@ -125,7 +125,7 @@ def calcularTiempoVuelta(coche,circuito):
                 tiempo += calcularTiempoRectaFinal(tramo, coche, velocidadActual)
             else:
                 tiempo += calcularTiempoCurva(tramo, coche)
-    tramoActual+=1
+        tramoActual += 1
 
     return tiempo
 
@@ -478,11 +478,11 @@ final_pop = ga.evolve(generator = problem.generator,
                           pop_size=100,
                           max_generations=50,
                           num_elites=1,
-                          num_selected=40,
+                          num_selected=10,
                           tournament_size=3,
                           crossover_rate=1,
                           sbx_distribution_index=10,
-                          mutation_rate=0.2,
+                          mutation_rate=0.05,
                           gaussian_stdev=0.5)
 
 best = max(ga.population)
