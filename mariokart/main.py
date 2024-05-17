@@ -54,7 +54,7 @@ class Coche:
         self.peso = chasis.peso + ruedas.peso + parapente.peso + personaje.peso
         self.aceleracion = chasis.aceleracion + ruedas.aceleracion + parapente.aceleracion + personaje.aceleracion
         self.traccion = chasis.traccion + ruedas.traccion + parapente.traccion + personaje.traccion
-        self.miniturbo = chasis.traccion + ruedas.traccion + parapente.traccion + personaje.traccion
+        self.miniturbo = chasis.miniturbo + ruedas.miniturbo + parapente.miniturbo + personaje.miniturbo
         self.velTierra = chasis.velTierra + ruedas.velTierra + parapente.velTierra + personaje.velTierra
         self.velAgua = chasis.velAgua + ruedas.velAgua + parapente.velAgua + personaje.velAgua
         self.velAntiGravedad = chasis.velAntiGravedad + ruedas.velAntiGravedad + parapente.velAntiGravedad + personaje.velAntiGravedad
@@ -64,7 +64,7 @@ class Coche:
         print("Chasis: " + self.chasis.nombre + " Ruedas: " + self.ruedas.nombre + " Parapente: " + self.parapente.nombre + " Personaje: " + self.personaje.nombre)
 
     def printStats(self):
-        print("Peso: " + str(self.peso) + "\nAceleración: " + str(self.aceleracion) + "\nTracción: " + str(self.aceleracion) + "\nMiniturbo: " + str(self.miniturbo) + "\nVelocidad Tierra: " + str(self.velTierra) +
+        print("Peso: " + str(self.peso) + "\nAceleración: " + str(self.aceleracion) + "\nTracción: " + str(self.traccion) + "\nMiniturbo: " + str(self.miniturbo) + "\nVelocidad Tierra: " + str(self.velTierra) +
               "\nVelocidad Aire: " + str(self.velAire) + "\nVelocidad Agua: " + str(self.velAgua) + "\nVelocidad Antigravedad: " + str(self.velAntiGravedad))
 
     '''
@@ -206,21 +206,21 @@ def calcularVelocidadCurva(tramo, coche):
 
     elif tramo.terreno == "agua":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAgua - coche.peso + coche.traccion * 2 - 10
+            velocidad = coche.velAgua - coche.peso + coche.traccion/2 - 10
         elif tramo.tipo == "curva media":
             velocidad = coche.velAgua - coche.peso + coche.traccion * 1.5 - 7
         else:
             velocidad = coche.velAgua - coche.peso + coche.traccion * 1.25 - 5
     elif tramo.terreno == "aire":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAire - coche.peso + coche.traccion * 2 - 10
+            velocidad = coche.velAire - coche.peso + coche.traccion/2 - 10
         elif tramo.tipo == "curva media":
             velocidad = coche.velAire - coche.peso + coche.traccion * 1.5 - 7
         else:
             velocidad = coche.velAire - coche.peso + coche.traccion * 1.25 - 5
     else:
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 2 - 10
+            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion/2 - 10
         elif tramo.tipo == "curva media":
             velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 1.5 - 7
         else:
@@ -233,54 +233,6 @@ def calcularVelocidadCurva(tramo, coche):
 def calcularTiempoCurva(tramo, coche):
     return (tramo.longitud / calcularVelocidadCurva(tramo, coche))
 
-'''
-def calcularTiempoRecta(vInicial, vMax, vCurva, mRecta, aceleracion, peso, velocidad, traccion):
-    tiempoRecta = 0
-    vCurva = vCurva+float(peso)*0.25+float(traccion)*0.75
-    mFrenar = calcularMetros(vCurva, vMax, -aceleracion, peso)
-    mVMax = mRecta-mFrenar
-    mAcelerar = calcularMetros(vMax, vInicial, aceleracion, peso)
-    if(mAcelerar<mVMax):
-        mVMax = mRecta-mAcelerar
-        tiempoRecta = calcularTiempo(vMax, vInicial, aceleracion, peso) + calcularTiempoVMax(mVMax, velocidad) + calcularTiempo(vCurva, vMax, aceleracion, peso)
-    else:
-        #en este caso no se alcanza vMax, necesitamos otro método para calcular tiempo acelerando
-        tiempoRecta = calcularTiempo(vMax, vInicial, aceleracion, peso) + calcularTiempo(vCurva, vMax, aceleracion, peso)
-
-    return tiempoRecta
-
-def calcularVMax(tramo, individuo):
-        if tramo.tipo == "recta":
-            if tramo.terreno == "asfalto":
-                return individuo.velTierra
-            elif tramo.terreno == "agua":
-                return individuo.velAgua
-            elif tramo.terreno == "aire":
-                return individuo.velAire
-            else:
-                return individuo.velAntiGravedad
-        elif tramo.tipo == "curva cerrada":
-            return float(50) + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
-        elif tramo.tipo == "curva media":
-            return 70.0 + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
-        else:
-            return 90.0 + float(individuo.peso) * 0.25 + float(individuo.traccion) * 0.75
-
-def calcularTiempoCurva(mCurva, vCurva, peso, traccion, velocidad):
-    if(velocidad<vCurva):
-        vCurva = velocidad
-    return mCurva * vCurva
-
-def calcularTiempo(vMax, vInicial, aceleracion, peso):
-    return 1
-
-def calcularTiempoVMax(mVMax, velocidad):
-    return mVMax*velocidad*2
-
-def calcularMetros(vFinal, vInicial, aceleracion, peso):
-    tiempo =calcularTiempo(vFinal, vInicial, aceleracion, peso)
-    return vInicial*tiempo+0.5*aceleracion*10*tiempo*tiempo
-'''
 
 gliders = []
 
@@ -384,16 +336,16 @@ def generarPoblacionInicial(size):
 
 '''
 recta1 = Tramo(100, "agua", "recta")
-curva1 = Tramo(150, "agua", "curva cerrada")
+curva1 = Tramo(150, "agua", "recta")
 recta2 = Tramo(100, "agua", "recta")
-curva2 = Tramo(150, "agua", "curva cerrada")
-ovalo = [recta1, curva1, recta2, curva2]
+curva2 = Tramo(150, "agua", "recta")
+circuito1 = [recta1, curva1, recta2, curva2]
 '''
 recta1 = Tramo(100, "antigravedad", "recta")
 curva1 = Tramo(150, "antigravedad", "curva cerrada")
 recta2 = Tramo(100, "antigravedad", "recta")
 curva2 = Tramo(100, "antigravedad", "curva cerrada")
-recta3 = Tramo(2000, "antigravedad", "recta")
+recta3 = Tramo(200, "antigravedad", "recta")
 curva3 = Tramo(100, "antigravedad", "curva media")
 recta4 = Tramo(300, "antigravedad", "recta")
 curva4 = Tramo(200, "antigravedad", "curva abierta")
@@ -506,10 +458,10 @@ final_pop = ga.evolve(generator = problem.generator,
                           evaluator=problem.evaluator,
                           bounder=problem.bounder,
                           maximize=problem.maximize,
-                          pop_size=100,
-                          max_generations=50,
+                          pop_size=10,
+                          max_generations=20,
                           num_elites=1,
-                          num_selected=100,
+                          num_selected=20,
                           tournament_size=3,
                           crossover_rate=1,
                           sbx_distribution_index=10,
