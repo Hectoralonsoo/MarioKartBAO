@@ -154,11 +154,11 @@ def calcularVelocidadMaximaRecta(tramo, coche):
         velocidad = coche.velAire
     else:
         velocidad = coche.velAntiGravedad
-    return velocidad
+    return velocidad * 1.5
 def calcularVelocidadFinalRecta(coche, tramo):
     return calcularVelocidadCurva(tramo, coche)
 def calcularVelocidadFinalCurva(coche, tramo):
-    return coche.miniturbo + calcularVelocidadCurva(tramo, coche)
+    return 0.5*coche.miniturbo + calcularVelocidadCurva(tramo, coche)
 def tiempoDistanciaVelocidadConstante(distancia, velocidad):
     return distancia/velocidad
 def calcularTiempoRecta(tramo, velocidadInicial, velocidadFinal, aceleracion):
@@ -173,33 +173,33 @@ def calcularMetrosVelocidadMaximaRecta(tramo, velocidadInicial, velocidadFinal, 
 def calcularVelocidadCurva(tramo, coche):
     if tramo.terreno == "asfalto":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velTierra - coche.peso + coche.traccion - 10
+            velocidad = 0.5 * coche.velTierra - coche.peso + coche.traccion * 0.9
         elif tramo.tipo == "curva media":
-            velocidad = coche.velTierra - coche.peso + coche.traccion - 7
+            velocidad = 0.75 * coche.velTierra - coche.peso + coche.traccion * 0.75
         else:
-            velocidad = coche.velTierra - coche.peso + coche.traccion - 5
+            velocidad = 0.9 * coche.velTierra - coche.peso + coche.traccion * 0.5
 
     elif tramo.terreno == "agua":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAgua - coche.peso + coche.traccion - 10
+            velocidad = 0.5 * coche.velAgua - coche.peso + coche.traccion * 0.9
         elif tramo.tipo == "curva media":
-            velocidad = coche.velAgua - coche.peso + coche.traccion - 7
+            velocidad = 0.75 * coche.velAgua - coche.peso + coche.traccion * 0.75
         else:
-            velocidad = coche.velAgua - coche.peso + coche.traccion - 5
+            velocidad = 0.9 * coche.velAgua - coche.peso + coche.traccion * 0.5
     elif tramo.terreno == "aire":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAire - coche.peso + coche.traccion - 10
+            velocidad = 0.5 * coche.velAire - coche.peso + coche.traccion * 0.9
         elif tramo.tipo == "curva media":
-            velocidad = coche.velAire - coche.peso + coche.traccion - 7
+            velocidad = 0.75 * coche.velAire - coche.peso + coche.traccion * 0.75
         else:
-            velocidad = coche.velAire - coche.peso + coche.traccion - 5
+            velocidad = 0.9 * coche.velAire - coche.peso + coche.traccion * 0.5
     else:
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion - 10
+            velocidad = 0.5 * coche.velAntiGravedad - coche.peso + coche.traccion * 0.9
         elif tramo.tipo == "curva media":
-            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion - 7
+            velocidad = 0.75 * coche.velAntiGravedad - coche.peso + coche.traccion * 0.75
         else:
-            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion - 5
+            velocidad = 0.9 * coche.velAntiGravedad - coche.peso + coche.traccion * 0.5
 
     if (velocidad <= 0):
         return 1
@@ -393,8 +393,7 @@ class MarioKart(benchmarks.Benchmark):
         for candidate in candidates:
             tiempo = calcularTiempoVuelta(ArrayToCoche(candidate), self.circuito)
             coche = Coche(bodies[candidate[0]], tires[candidate[1]], gliders[candidate[2]], drivers[candidate[3]])
-            coche.printTraccion()
-            coche.printStats()
+
             fitness.append(tiempo)
         return fitness
 
@@ -432,7 +431,7 @@ final_pop = ga.evolve(generator = problem.generator,
                           tournament_size=3,
                           crossover_rate=1,
                           sbx_distribution_index=10,
-                          mutation_rate=0.05,
+                          mutation_rate=0.1,
                           gaussian_stdev=0.5)
 
 best = max(ga.population)
