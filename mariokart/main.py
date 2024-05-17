@@ -1,41 +1,21 @@
-import collections
+
 import csv
 from copy import deepcopy
 
 import numpy as np
-import random
-import operator
-import math
-import itertools
-import math
+
 from random import Random
 from time import time
 from inspyred import ec, benchmarks
 
-import numpy
-
-from functools import partial
 
 
 
 
 
-#Fórmulas:
-# Tiempo en Recorrer una distancia: Cambio en el tiempo = Metros Recorridos / Velocidad
-# Tiempo en Acelerar o Decelerar a una velocidad:Cambio en el tiempo = Diferencia de Velocidad / (aceleración * (Parámetro*Peso))
-# Distancia Recorrida para pasar de una velocidad a otra:  VF^2 = VI^2 + 2*a*d
-#   VF = Velocidad Final
-#   VI = Velocidad Inicial
-#   a = Aceleración
-#   d = distancia recorrida
-# Velocidad Máxima en curva:
-#  Curva Abierta = 0.75 de la Velocidad Maxima * (Traccion/10)
-#  Curva Media = 0.5 de la Velocidad Maxima * (Traccion/10)
-#  Curva Cerrada = 0.25 de la Velocidad Maxima * (Traccion/10)
-#  MetrosRectaMaximaVelocidad = MetrosRectaTotal - MetrosAcelerar(Distancia Recorrida para pasar de una velocidad a otra) - MetrosFrenar(Distancia Recorrida para pasar de una velocidad a otra)
-#  TiempoRectaMaximaVelocidad = MetrosRectaMaximaVelocidad / VelocidadMaxima
-#  TiempoAcelerar-TiempoFrenar = Distancia Recorrida para pasar de una velocidad a otra/ (aceleracion-peso)
-#
+
+
+
 
 
 
@@ -103,11 +83,6 @@ class Personaje(Pieza):
     def __init__(self, nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire):
         super().__init__(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
 
-#los numeros en azul son parámetros que habrá que cambiar
-
-
-
-
 
 
 def calcularTiempoVuelta(coche, circuito):
@@ -162,7 +137,9 @@ def calcularVelocidadFinalCurva(coche, tramo):
 def tiempoDistanciaVelocidadConstante(distancia, velocidad):
     return distancia/velocidad
 def calcularTiempoRecta(tramo, velocidadInicial, velocidadFinal, aceleracion):
-    return calcularTiempoAcelerando(velocidadInicial, velocidadFinal, aceleracion) + tiempoDistanciaVelocidadConstante(calcularMetrosVelocidadMaximaRecta(tramo)) + calcularTiempoFrenando(velocidadInicial,velocidadFinal,aceleracion)
+    return (calcularTiempoAcelerando(velocidadInicial, velocidadFinal, aceleracion) +
+            tiempoDistanciaVelocidadConstante(calcularMetrosVelocidadMaximaRecta(tramo)) +
+            calcularTiempoFrenando(velocidadInicial,velocidadFinal,aceleracion))
 def calcularMetrosVelocidadMaximaRecta(tramo, velocidadInicial, velocidadFinal, aceleracion):
     if tramo.longitud <= ((calcularDistanciaAcelerando(velocidadInicial, velocidadFinal, aceleracion) + calcularDistanciaFrenando(velocidadInicial, velocidadFinal, aceleracion))):
         return 0
@@ -201,12 +178,12 @@ def calcularVelocidadCurva(tramo, coche):
         else:
             velocidad = 0.9 * coche.velAntiGravedad - coche.peso + coche.traccion * 0.5
 
-    if (velocidad <= 0):
+    if velocidad <= 0:
         return 1
     else:
         return velocidad
 def calcularTiempoCurva(tramo, coche):
-    return (tramo.longitud / calcularVelocidadCurva(tramo, coche))
+    return tramo.longitud / calcularVelocidadCurva(tramo, coche)
 
 
 gliders = []
@@ -246,8 +223,7 @@ with open('tires.csv', "r") as csvTires:
         tire = Rueda(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         tires.append(tire)
 
-#for tire in tires:
-    #print(f"Nombre: {tire.nombre}, Peso: {tire.peso}, Aceleracion: {tire.aceleracion}, Traccion: {tire.traccion}, Miniturbo: {tire.miniturbo}, Velocidad en asfalto: {tire.velTierra}, Velocidad en agua: {tire.velAgua}, Velocidad en antigravedad: {tire.velAntiGravedad}, Velocidad en aire: {tire.velAire}")
+
 
 drivers = []
 
@@ -267,8 +243,7 @@ with open('drivers.csv', "r") as csvDrivers:
         driver = Personaje(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         drivers.append(driver)
 
-#for driver in drivers:
-    #print(f"Nombre: {driver.nombre}, Peso: {driver.peso}, Aceleracion: {driver.aceleracion}, Traccion: {driver.traccion}, Miniturbo: {driver.miniturbo}, Velocidad en asfalto: {driver.velTierra}, Velocidad en agua: {driver.velAgua}, Velocidad en antigravedad: {driver.velAntiGravedad}, Velocidad en aire: {driver.velAire}")
+
 
 bodies = []
 
@@ -302,22 +277,93 @@ def ArrayToCoche(car):
 
 
 
-'''
-recta1 = Tramo(1000, "agua", "recta")
-curva1 = Tramo(150, "agua", "recta")
-recta2 = Tramo(100, "agua", "recta")
-curva2 = Tramo(150, "agua", "recta")
-circuito1 = [recta1, curva1, recta2, curva2]
-'''
-recta1 = Tramo(1000, "agua", "recta")
+
+
+
+#circuito1
+
+recta1 = Tramo(370, "tierra", "recta")
 curva1 = Tramo(150, "agua", "curva cerrada")
-recta2 = Tramo(1000, "agua", "recta")
-curva2 = Tramo(100, "agua", "curva cerrada")
-recta3 = Tramo(200, "agua", "recta")
-curva3 = Tramo(100, "agua", "curva media")
+recta2 = Tramo(160, "antigravedad", "recta")
+curva2 = Tramo(350, "agua", "curva cerrada")
+recta3 = Tramo(200, "antigravedad", "recta")
+curva3 = Tramo(180, "tierra", "curva media")
 recta4 = Tramo(300, "agua", "recta")
-curva4 = Tramo(200, "agua", "curva abierta")
+curva4 = Tramo(200, "tierra", "curva abierta")
+
 circuito1 = [recta1, curva1, recta2, curva2, recta3, curva3, recta4, curva4]
+
+
+#circuito 2
+
+recta1 = Tramo(400, "asfalto", "recta")
+curva1 = Tramo(200, "agua", "curva cerrada")
+curva2 = Tramo(150, "aire", "curva media")
+recta2 = Tramo(250, "antigravedad", "recta")
+curva3 = Tramo(180, "asfalto", "curva cerrada")
+curva4 = Tramo(120, "agua", "curva abierta")
+recta3 = Tramo(300, "antigravedad", "recta")
+curva5 = Tramo(250, "asfalto", "curva cerrada")
+curva6 = Tramo(180, "aire", "curva media")
+recta4 = Tramo(280, "asfalto", "recta")
+curva7 = Tramo(150, "agua", "curva abierta")
+recta5 = Tramo(200, "antigravedad", "recta")
+
+circuito2 = [recta1, curva1, curva2, recta2, curva3, curva4, recta3, curva5, curva6, recta4, curva7, recta5]
+
+
+#CIRCUITO 3
+
+recta1 = Tramo(600, "asfalto", "recta")
+curva1 = Tramo(250, "agua", "curva cerrada")
+curva2 = Tramo(300, "aire", "curva media")
+recta2 = Tramo(400, "antigravedad", "recta")
+curva3 = Tramo(200, "asfalto", "curva cerrada")
+curva4 = Tramo(180, "agua", "curva abierta")
+recta3 = Tramo(450, "antigravedad", "recta")
+curva5 = Tramo(350, "asfalto", "curva cerrada")
+curva6 = Tramo(250, "aire", "curva media")
+recta4 = Tramo(500, "asfalto", "recta")
+curva7 = Tramo(300, "agua", "curva abierta")
+recta5 = Tramo(250, "antigravedad", "recta")
+curva8 = Tramo(400, "asfalto", "curva cerrada")
+curva9 = Tramo(300, "aire", "curva media")
+recta6 = Tramo(600, "asfalto", "recta")
+curva10 = Tramo(200, "agua", "curva abierta")
+recta7 = Tramo(350, "antigravedad", "recta")
+
+circuito3 = [recta1, curva1, curva2, recta2, curva3, curva4, recta3, curva5, curva6, recta4, curva7, recta5, curva8, curva9, recta6, curva10, recta7]
+
+
+
+#CIRCUITO 4 CONDICIONES EXTREMAS RECTA AIRE
+
+recta1 = Tramo(1600, "aire", "recta")
+curva1 = Tramo(200, "asfalto", "curva cerrada")
+recta2 = Tramo(2000, "aire", "recta")
+curva2 = Tramo(250, "agua", "curva abierta")
+recta3 = Tramo(2500, "aire", "recta")
+
+circuito4 = [recta1, curva1, recta2, curva2, recta3]
+
+
+
+#CIRCUITO 5 CONDICIONES EXTREMAS CURVA AGUA Y AIRE
+
+recta1 = Tramo(400, "aire", "recta")
+curva1 = Tramo(300, "agua", "curva cerrada")
+curva2 = Tramo(250, "aire", "curva abierta")
+recta2 = Tramo(500, "aire", "recta")
+curva3 = Tramo(300, "agua", "curva cerrada")
+recta3 = Tramo(600, "aire", "recta")
+curva4 = Tramo(300, "agua", "curva cerrada")
+curva5 = Tramo(300, "aire", "curva media")
+
+circuito5 = [recta1, curva1, curva2, recta2, curva3, recta3, curva4, curva5]
+
+
+
+
 
 class DiscreteBounderV2(object):
     """Defines a basic bounding function for numeric lists of discrete values.
@@ -424,14 +470,14 @@ final_pop = ga.evolve(generator = problem.generator,
                           evaluator=problem.evaluator,
                           bounder=problem.bounder,
                           maximize=problem.maximize,
-                          pop_size=10,
-                          max_generations=20,
+                          pop_size=50,
+                          max_generations=60,
                           num_elites=1,
                           num_selected=20,
                           tournament_size=3,
                           crossover_rate=1,
                           sbx_distribution_index=10,
-                          mutation_rate=0.1,
+                          mutation_rate=0.9,
                           gaussian_stdev=0.5)
 
 best = max(ga.population)
