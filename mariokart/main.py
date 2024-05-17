@@ -66,35 +66,10 @@ class Coche:
     def printStats(self):
         print("Peso: " + str(self.peso) + "\nAceleración: " + str(self.aceleracion) + "\nTracción: " + str(self.traccion) + "\nMiniturbo: " + str(self.miniturbo) + "\nVelocidad Tierra: " + str(self.velTierra) +
               "\nVelocidad Aire: " + str(self.velAire) + "\nVelocidad Agua: " + str(self.velAgua) + "\nVelocidad Antigravedad: " + str(self.velAntiGravedad))
+    def printTraccion(self):
+        print("Tracción: " + str(self.traccion))
 
-    '''
-    def calcularTiempoVuelta(self, circuito):
-        tiempo = 0
-        vActual = 0
-        i = 0
-        for tramo in circuito:
-            if tramo.tipo == "recta":
-                if tramo.terreno == "asfalto":
-                    tiempo += calcularTiempoRecta(int(vActual), self.velTierra, calcularVMax(circuito[i+1], self), tramo.longitud,
-                                                  self.aceleracion, self.peso, self.velTierra, self.traccion)
-                elif tramo.terreno == "agua":
-                    tiempo += calcularTiempoRecta(int(vActual), self.velAgua, calcularVMax(circuito[i+1], self), tramo.longitud,
-                                                  self.aceleracion, self.peso, self.velTierra, self.traccion)
-                elif tramo.terreno == "aire":
-                    tiempo += calcularTiempoRecta(int(vActual), self.velAire, calcularVMax(circuito[i+1], self), tramo.longitud,
-                                                  self.aceleracion, self.peso, self.velTierra, self.traccion)
-                else:
-                    tiempo += calcularTiempoRecta(int(vActual), self.velAntiGravedad, calcularVMax(circuito[i+1], self),
-                                                  tramo.longitud, self.aceleracion, self.peso, self.velTierra,
-                                                  self.traccion)
 
-            else:
-                tiempo += calcularTiempoCurva(tramo.longitud, calcularVMax(tramo, self), self.peso, self.traccion, self.velTierra)
-                vActual = calcularVMax(circuito[i+1], self) + self.miniturbo * 0.9
-                # parametrizar impacto del miniturbo
-
-        return tiempo
-        '''
 class Tramo:
 
     def __init__(self, longitud, terreno, tipo):
@@ -198,33 +173,33 @@ def calcularMetrosVelocidadMaximaRecta(tramo, velocidadInicial, velocidadFinal, 
 def calcularVelocidadCurva(tramo, coche):
     if tramo.terreno == "asfalto":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velTierra - coche.peso + coche.traccion * 2 - 10
+            velocidad = coche.velTierra - coche.peso + coche.traccion - 10
         elif tramo.tipo == "curva media":
-            velocidad = coche.velTierra - coche.peso + coche.traccion * 1.5 - 7
+            velocidad = coche.velTierra - coche.peso + coche.traccion - 7
         else:
-            velocidad = coche.velTierra - coche.peso + coche.traccion * 1.25 - 5
+            velocidad = coche.velTierra - coche.peso + coche.traccion - 5
 
     elif tramo.terreno == "agua":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAgua - coche.peso + coche.traccion/2 - 10
+            velocidad = coche.velAgua - coche.peso + coche.traccion - 10
         elif tramo.tipo == "curva media":
-            velocidad = coche.velAgua - coche.peso + coche.traccion * 1.5 - 7
+            velocidad = coche.velAgua - coche.peso + coche.traccion - 7
         else:
-            velocidad = coche.velAgua - coche.peso + coche.traccion * 1.25 - 5
+            velocidad = coche.velAgua - coche.peso + coche.traccion - 5
     elif tramo.terreno == "aire":
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAire - coche.peso + coche.traccion/2 - 10
+            velocidad = coche.velAire - coche.peso + coche.traccion - 10
         elif tramo.tipo == "curva media":
-            velocidad = coche.velAire - coche.peso + coche.traccion * 1.5 - 7
+            velocidad = coche.velAire - coche.peso + coche.traccion - 7
         else:
-            velocidad = coche.velAire - coche.peso + coche.traccion * 1.25 - 5
+            velocidad = coche.velAire - coche.peso + coche.traccion - 5
     else:
         if tramo.tipo == "curva cerrada":
-            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion/2 - 10
+            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion - 10
         elif tramo.tipo == "curva media":
-            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 1.5 - 7
+            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion - 7
         else:
-            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion * 1.25 - 5
+            velocidad = coche.velAntiGravedad - coche.peso + coche.traccion - 5
 
     if (velocidad <= 0):
         return 1
@@ -252,8 +227,6 @@ with open('gliders.csv', "r") as csvfile:
         glider = Parapente(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         gliders.append(glider)
 
-#for glider in gliders:
-    #print(f"Nombre: {glider.nombre}, Peso: {glider.peso}, Aceleracion: {glider.aceleracion}, Traccion: {glider.traccion}, Miniturbo: {glider.miniturbo}, Velocidad en asfalto: {glider.velTierra}, Velocidad  en aire:  {glider.velAire}, Velocidad  en antigravedad:  {glider.velAntiGravedad}, Velocidad en agua: {glider.velAgua}")
 
 tires = []
 
@@ -315,8 +288,6 @@ with open('bodies_karts.csv', "r") as csvBodies:
         bodie = Chasis(nombre, peso, aceleracion, traccion, miniturbo, velTierra, velAgua, velAntiGravedad, velAire)
         bodies.append(bodie)
 
-#for bodie in bodies:
-    #print(f"Nombre: {bodie.nombre}, Peso: {bodie.peso}, Aceleracion: {bodie.aceleracion}, Traccion: {bodie.traccion}, Miniturbo: {bodie.miniturbo}, Velocidad en asfalto: {bodie.velTierra}, Velocidad en agua: {bodie.velAgua}, Velocidad en antigravedad: {bodie.velAntiGravedad}, Velocidad en aire: {bodie.velAire}")
 
 def generarCoche(random):
     glider = random.randint(0, 13)
@@ -328,27 +299,24 @@ def generarCoche(random):
 def ArrayToCoche(car):
     print(car)
     return Coche(bodies[car[0]],tires[car[1]],gliders[car[2]],drivers[car[3]])
-def generarPoblacionInicial(size):
-    poblacionInicial=[]
-    for i in range(size):
-        poblacionInicial.append(generarCoche())
-    return poblacionInicial
+
+
 
 '''
-recta1 = Tramo(100, "agua", "recta")
+recta1 = Tramo(1000, "agua", "recta")
 curva1 = Tramo(150, "agua", "recta")
 recta2 = Tramo(100, "agua", "recta")
 curva2 = Tramo(150, "agua", "recta")
 circuito1 = [recta1, curva1, recta2, curva2]
 '''
-recta1 = Tramo(100, "antigravedad", "recta")
-curva1 = Tramo(150, "antigravedad", "curva cerrada")
-recta2 = Tramo(100, "antigravedad", "recta")
-curva2 = Tramo(100, "antigravedad", "curva cerrada")
-recta3 = Tramo(200, "antigravedad", "recta")
-curva3 = Tramo(100, "antigravedad", "curva media")
-recta4 = Tramo(300, "antigravedad", "recta")
-curva4 = Tramo(200, "antigravedad", "curva abierta")
+recta1 = Tramo(1000, "agua", "recta")
+curva1 = Tramo(150, "agua", "curva cerrada")
+recta2 = Tramo(1000, "agua", "recta")
+curva2 = Tramo(100, "agua", "curva cerrada")
+recta3 = Tramo(200, "agua", "recta")
+curva3 = Tramo(100, "agua", "curva media")
+recta4 = Tramo(300, "agua", "recta")
+curva4 = Tramo(200, "agua", "curva abierta")
 circuito1 = [recta1, curva1, recta2, curva2, recta3, curva3, recta4, curva4]
 
 class DiscreteBounderV2(object):
@@ -423,18 +391,17 @@ class MarioKart(benchmarks.Benchmark):
     def evaluator(self, candidates, args):
         fitness = []
         for candidate in candidates:
-            candidate = boundCandidate(candidate)
             tiempo = calcularTiempoVuelta(ArrayToCoche(candidate), self.circuito)
+            coche = Coche(bodies[candidate[0]], tires[candidate[1]], gliders[candidate[2]], drivers[candidate[3]])
+            coche.printTraccion()
+            coche.printStats()
             fitness.append(tiempo)
         return fitness
 
 
 def my_variator(random, candidates, args):
-    fitness = []
     for candidate in candidates:
         candidate = boundCandidate(candidate)
-        tiempo = calcularTiempoVuelta(ArrayToCoche(candidate),circuito1)
-        fitness.append(tiempo)
     return candidates
 
 size = 50
@@ -492,11 +459,12 @@ class ACOMarioKart:
         self.trails_history = []
         self.best_fitness_history = []
 
-    def optimize(self, max_evaluations: int = 1000):
+
+    def optimize(self, max_evaluations: int = 100):
         self._initialize()
 
         n_evaluations = 0
-        iter_fitness = 1e-10
+        iter_fitness = 1e10
         while n_evaluations < max_evaluations:
             trails = []
             for _ in range(self.n_ants):
@@ -505,7 +473,7 @@ class ACOMarioKart:
                 n_evaluations += 1
                 trails.append((solution, fitness))
 
-                if fitness > self.best_fitness:
+                if fitness < self.best_fitness:
                     self.best_solution = solution
                     self.best_fitness = fitness
 
@@ -531,13 +499,13 @@ class ACOMarioKart:
         self.best_fitness_history = []
 
     def _evaluate(self, solution: list[int]) -> float:
-        solucion = ArrayToCoche(solution)
-        return calcularTiempoVuelta(solucion, self.circuito)
+        s = ArrayToCoche(solution)
+        return calcularTiempoVuelta(s, self.circuito)
 
     def _construct_solution(self) -> list[int]:
         solution = [-1, -1, -1, -1]
-        i=0
-        while i<4:
+        i = 0
+        while i < 4:
             while True:
                 candidates = self._get_candidates(i)
 
@@ -546,49 +514,103 @@ class ACOMarioKart:
                 elif len(candidates) == 1:
                     solution[i] = candidates[0]
                     break
-                p = []
-                p.append(self.pheromone[i])
-                pheromones = p[candidates]**self.alpha
-                heuristic = self._heuristic(candidates)**self.beta
+
+
+                pheromones = self.pheromone[i][candidates]**self.alpha
+                heuristic = self._heuristic(candidates, i)**self.beta
 
                 total = np.sum(pheromones * heuristic)
                 probabilities = (pheromones * heuristic) / total
 
 
                 solution[i] = np.random.choice(candidates, p=probabilities)
-                i=i+1
+                break
+            i = i+1
 
 
         return solution
 
-    def _heuristic(self, candidates: list[int]) -> np.ndarray:
-        return np.ones(len(candidates))
+    def _heuristic(self, candidates: list[int], i) -> np.ndarray:
+        heuristic = np.zeros(len(candidates))
+        piezas = []
+        if i == 0:
+            piezas = bodies
+        elif i == 1:
+            piezas = tires
+        elif i == 2:
+            piezas = gliders
+        else: piezas = drivers
+
+        mRecta = 0
+        mCurva = 0
+        mAsfalto = 0
+        mAgua = 0
+        mAire = 0
+        mAnti = 0
+        for tramo in self.circuito:
+            if tramo.tipo == "recta":
+                mRecta+=tramo.longitud
+            else: mCurva+=tramo.longitud
+
+            if tramo.terreno == "asfalto":
+                mAsfalto+=tramo.longitud
+            elif tramo.terreno == "agua":
+                mAgua+=tramo.longitud
+            elif tramo.terreno == "aire":
+                mAire+=tramo.longitud
+            else: mAnti+=tramo.longitud
+        for candidate in candidates:
+            pieza = piezas[candidate]
+            if mAsfalto > mAgua and mAsfalto > mAire and mAsfalto > mAnti:
+                heuristic[candidate] = pieza.velTierra
+            elif mAgua > mAire and mAgua > mAnti:
+                heuristic[candidate] = pieza.velAgua
+            elif mAire > mAnti:
+                heuristic[candidate] = pieza.velAire
+            else:
+                heuristic[candidate] = pieza.velAntiGravedad
+            if mRecta > mCurva:
+                heuristic[candidate] += pieza.aceleracion
+            else: heuristic[candidate] += (pieza.traccion + pieza.miniturbo)
+
+
+        return heuristic
 
     def _get_candidates(self, nPieza : int) -> np.ndarray:
 
 
-        candidates = []
         if nPieza == 0:
             candidates = [i for i in range(len(bodies))]
         elif nPieza == 1:
             candidates = [i for i in range(len(tires))]
         elif nPieza == 2:
             candidates = [i for i in range(len(gliders))]
-        else: candidates = [i for i in range(len(drivers))]
+        else:
+            candidates = [i for i in range(len(drivers))]
         return np.array(candidates)
 
-    def _update_pheromone(self, trails: list[list[int]], best_fitness):
+    def _update_pheromone(self, trails, best_fitness):
         self.pheromone_history.append(self.pheromone.copy())
 
         evaporation = 1 - self.rho
-        self.pheromone *= evaporation
+        self.pheromone[0] *= evaporation
+        self.pheromone[1] *= evaporation
+        self.pheromone[2] *= evaporation
+        self.pheromone[3] *= evaporation
         for solution, fitness in trails:
-            delta_fitness = 1.0/(1.0 + (best_fitness - fitness) / best_fitness)
-            mask = np.argwhere(solution == 1).flatten()
-            self.pheromone[mask] += delta_fitness
+            delta_fitness = 1.0/(1.0 + (fitness - best_fitness) / best_fitness)
+            self.pheromone[0][solution[0]] += delta_fitness
+            self.pheromone[1][solution[1]] += delta_fitness
+            self.pheromone[2][solution[2]] += delta_fitness
+            self.pheromone[3][solution[3]] += delta_fitness
+
 
 aco = ACOMarioKart(circuito1)
 best_solution = aco.optimize()
+print("\n Optimización con ACO\n")
+print(best_solution)
+
 best_coche = ArrayToCoche(best_solution)
 best_coche.printCoche()
 best_coche.printStats()
+print("Tiempo vuelta: "+str(calcularTiempoVuelta(best_coche, circuito1)))
